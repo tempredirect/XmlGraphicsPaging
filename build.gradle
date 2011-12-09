@@ -1,0 +1,27 @@
+import java.util.regex.Pattern
+
+apply plugin: 'java'
+apply plugin: 'idea'
+/*apply from: 'http://launchpad.net/gradle-templates/trunk/1.2/+download/apply.groovy'*/
+
+//apply plugin: 'templates'
+  
+repositories {
+    mavenCentral()
+}
+dependencies {
+  compile 'org.apache.xmlgraphics:xmlgraphics-commons:1.4'
+}
+
+clean << {
+  new File(".").eachFileMatch(Pattern.compile("simplePaged.*\\.eps")) { it.delete() }
+}
+
+task run(dependsOn:compileJava) << {
+  ant.java(classname: 'SimplePagedEps', fork: true,
+         classpath: "${sourceSets.main.runtimeClasspath.asPath}")
+}
+
+jar {
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
